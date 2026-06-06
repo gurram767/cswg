@@ -98,6 +98,13 @@ docker compose run --rm playwright-tests
 BASE_URL=https://qacsconnect.cswg.com docker compose run --rm playwright-tests
 ```
 
+Or via npm scripts:
+
+```bash
+npm run test:docker         # standard network
+npm run test:docker:host    # host networking (internal/VPN targets)
+```
+
 The HTML report and failure artifacts are written back to the host at
 `playwright-report/` and `test-results/` via mounted volumes. View the report:
 
@@ -139,6 +146,31 @@ in `docker-compose.yml` under the `playwright-tests` service:
     extra_hosts:
       - "qacsconnect.cswg.com:10.20.30.40"
 ```
+
+### Scheduled nightly run (Windows Task Scheduler)
+
+`scripts/nightly-run.ps1` runs the suite in Docker and archives a timestamped
+HTML report and log under `reports-archive/`. Test it manually first:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\nightly-run.ps1
+# internal/VPN target:
+powershell -ExecutionPolicy Bypass -File scripts\nightly-run.ps1 -HostNetwork
+```
+
+Register a daily 2 AM run (adjust the path to this folder):
+
+```powershell
+$script = "C:\Users\likhi\OneDrive\Documents\Surya AI\qa-automation\scripts\nightly-run.ps1"
+$action  = New-ScheduledTaskAction -Execute "powershell.exe" `
+  -Argument "-ExecutionPolicy Bypass -File `"$script`""
+$trigger = New-ScheduledTaskTrigger -Daily -At 2am
+Register-ScheduledTask -TaskName "CSWG QA Nightly Tests" `
+  -Action $action -Trigger $trigger -Description "Nightly Playwright tests in Docker"
+```
+
+Docker Desktop must be running (or set to start on login) for the scheduled run
+to succeed.
 
 ## Test coverage
 

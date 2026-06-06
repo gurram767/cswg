@@ -8,7 +8,9 @@
     "test:debug": "npx playwright test --debug",
     "test:login": "npx playwright test tests/login.spec.ts --headed",
     "test:report": "npx playwright show-report",
-    "test:ci": "npx playwright test --reporter=html"
+    "test:ci": "npx playwright test --reporter=html",
+    "test:docker": "docker compose run --rm playwright-tests",
+    "test:docker:host": "docker compose run --rm playwright-tests-host"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",

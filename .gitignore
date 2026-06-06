@@ -26,6 +26,7 @@ test-results/
 downloads/
 screenshots/
 videos/
+reports-archive/
 
 # qa-automation local data
 qa-automation/data/users.json
