@@ -75,6 +75,53 @@ Run a subset by name:
 npx playwright test --grep "TC-004"
 ```
 
+## Running with Docker
+
+The tests can run in a container using the official Playwright image (browsers
+and OS dependencies are preinstalled — no local Node/Playwright setup needed).
+
+Credentials are **not** baked into the image (see `.dockerignore`). You provide
+`data/users.json` locally and it is mounted at runtime. Create it first from the
+example:
+
+```bash
+cp data/users.example.json data/users.json   # then edit with real credentials
+```
+
+### Using docker compose (recommended)
+
+```bash
+# Build the image and run the full suite
+docker compose run --rm playwright-tests
+
+# Override the target environment
+BASE_URL=https://qacsconnect.cswg.com docker compose run --rm playwright-tests
+```
+
+The HTML report and failure artifacts are written back to the host at
+`playwright-report/` and `test-results/` via mounted volumes. View the report:
+
+```bash
+npx playwright show-report
+```
+
+### Using plain docker
+
+```bash
+docker build -t cswg-qa-automation .
+
+docker run --rm \
+  -e BASE_URL=https://qacsconnect.cswg.com \
+  -v "$(pwd)/data/users.json:/app/data/users.json:ro" \
+  -v "$(pwd)/playwright-report:/app/playwright-report" \
+  -v "$(pwd)/test-results:/app/test-results" \
+  cswg-qa-automation
+```
+
+> Note: if the application under test is on an internal network/VPN, the
+> container must be able to reach it (run Docker on a machine inside that
+> network, or expose the host network with `--network host` on Linux).
+
 ## Test coverage
 
 | ID     | Area              | Verifies                                          |
