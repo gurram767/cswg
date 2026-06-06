@@ -1,0 +1,71 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    name: Run Playwright tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: qa-automation
+
+    env:
+      CI: "true"
+      HEADLESS: "true"
+      DATA_SOURCE: json
+      BASE_URL: ${{ vars.BASE_URL || 'https://qacsconnect.cswg.com' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: qa-automation/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox
+
+      - name: Create test credentials file from secret
+        env:
+          USERS_JSON: ${{ secrets.USERS_JSON }}
+        run: |
+          if [ -z "$USERS_JSON" ]; then
+            echo "::error::Secret USERS_JSON is not set. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          printf '%s' "$USERS_JSON" > data/users.json
+          echo "Wrote data/users.json ($(wc -c < data/users.json) bytes)"
+
+      - name: Run Playwright tests
+        run: npm run test:ci
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: qa-automation/playwright-report/
+          retention-days: 30
+
+      - name: Upload test artifacts (traces, screenshots, videos)
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: qa-automation/test-results/
+          retention-days: 14
