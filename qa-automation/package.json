@@ -1,0 +1,24 @@
+{
+  "name": "cswg-connect-qa-automation",
+  "version": "1.0.0",
+  "description": "QA Automation Framework for CSW Connect Portal - Playwright + TypeScript",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:login": "npx playwright test tests/login.spec.ts --headed",
+    "test:report": "npx playwright show-report",
+    "test:ci": "npx playwright test --reporter=html"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "@types/node": "^20.0.0",
+    "@types/pdf-parse": "^1.1.5",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pdf-parse": "^1.1.1",
+    "xlsx": "^0.18.5"
+  }
+}

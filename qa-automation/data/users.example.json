@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "username": "your_admin_username",
+      "password": "your_admin_password",
+      "role": "admin",
+      "description": "Primary admin account",
+      "active": true
+    },
+    {
+      "username": "your_store_username",
+      "password": "your_store_password",
+      "role": "store user",
+      "description": "External store user",
+      "active": true
+    }
+  ]
+}

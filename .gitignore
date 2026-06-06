@@ -1,0 +1,39 @@
+# ---- Python ----
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ---- Node ----
+node_modules/
+dist/
+build/
+
+# ---- Environment & secrets (never commit credentials) ----
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Playwright / test artifacts
+playwright-report/
+test-results/
+downloads/
+screenshots/
+videos/
+
+# qa-automation local data
+qa-automation/data/users.json
+qa-automation/data/users.xlsx
+qa-automation/data/reportFilters.xlsx
+
+# ---- OS / IDE ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
