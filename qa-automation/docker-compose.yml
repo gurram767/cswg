@@ -1,4 +1,6 @@
 services:
+  # Default service: standard bridge networking.
+  # Works when the app under test is reachable from the host's normal network.
   playwright-tests:
     build:
       context: .
@@ -9,9 +11,27 @@ services:
       HEADLESS: "true"
       DATA_SOURCE: json
       BASE_URL: ${BASE_URL:-https://qacsconnect.cswg.com}
+    # Use the host's DNS resolvers so internal hostnames resolve.
+    # Add internal-only hostnames here if DNS does not resolve them, e.g.:
+    #   extra_hosts:
+    #     - "qacsconnect.cswg.com:10.20.30.40"
+    extra_hosts: []
     volumes:
       # Provide real credentials at runtime (file is gitignored).
       - ./data/users.json:/app/data/users.json:ro
       # Get the HTML report and failure artifacts back on the host.
       - ./playwright-report:/app/playwright-report
       - ./test-results:/app/test-results
+
+  # Internal / VPN service: shares the host's network stack so the container
+  # can reach internal/VPN-only sites exactly as the host machine can.
+  # Run with:  docker compose run --rm playwright-tests-host
+  #
+  # Notes:
+  #  - On Linux this works out of the box.
+  #  - On Docker Desktop (Windows/macOS) enable host networking:
+  #    Settings > Resources > Network > "Enable host networking".
+  playwright-tests-host:
+    extends:
+      service: playwright-tests
+    network_mode: host

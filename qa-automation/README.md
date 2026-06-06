@@ -118,9 +118,27 @@ docker run --rm \
   cswg-qa-automation
 ```
 
-> Note: if the application under test is on an internal network/VPN, the
-> container must be able to reach it (run Docker on a machine inside that
-> network, or expose the host network with `--network host` on Linux).
+### Internal / VPN-only application
+
+If the app under test is on an internal network or behind a VPN, run Docker on a
+machine that is connected to that network and use the host-networking service so
+the container reaches it exactly as the host does:
+
+```bash
+docker compose run --rm playwright-tests-host
+```
+
+- **Linux:** works out of the box.
+- **Docker Desktop (Windows/macOS):** first enable
+  *Settings > Resources > Network > "Enable host networking"*, then restart Docker.
+
+If an internal hostname does not resolve inside the container, pin it to its IP
+in `docker-compose.yml` under the `playwright-tests` service:
+
+```yaml
+    extra_hosts:
+      - "qacsconnect.cswg.com:10.20.30.40"
+```
 
 ## Test coverage
 
