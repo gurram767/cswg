@@ -4,6 +4,7 @@ test-results
 downloads
 screenshots
 videos
+nightly-runs
 .env
 
 # Never bake real credentials into the image; mount them at runtime.

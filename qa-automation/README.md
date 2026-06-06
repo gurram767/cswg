@@ -98,11 +98,12 @@ docker compose run --rm playwright-tests
 BASE_URL=https://qacsconnect.cswg.com docker compose run --rm playwright-tests
 ```
 
-Or via npm scripts:
+Or via the npm scripts:
 
 ```bash
-npm run test:docker         # standard network
-npm run test:docker:host    # host networking (internal/VPN targets)
+npm run test:docker:build   # build the image
+npm run test:docker         # run the suite (bridge networking)
+npm run test:docker:host    # run the suite (host/VPN networking)
 ```
 
 The HTML report and failure artifacts are written back to the host at
@@ -147,30 +148,29 @@ in `docker-compose.yml` under the `playwright-tests` service:
       - "qacsconnect.cswg.com:10.20.30.40"
 ```
 
-### Scheduled nightly run (Windows Task Scheduler)
+## Scheduled nightly runs (Windows)
 
-`scripts/nightly-run.ps1` runs the suite in Docker and archives a timestamped
-HTML report and log under `reports-archive/`. Test it manually first:
+`scripts/run-nightly.ps1` builds the image, runs the suite in Docker, and saves a
+timestamped log and HTML report under `nightly-runs/` (gitignored).
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\nightly-run.ps1
-# internal/VPN target:
-powershell -ExecutionPolicy Bypass -File scripts\nightly-run.ps1 -HostNetwork
-```
-
-Register a daily 2 AM run (adjust the path to this folder):
+Run it manually:
 
 ```powershell
-$script = "C:\Users\likhi\OneDrive\Documents\Surya AI\qa-automation\scripts\nightly-run.ps1"
-$action  = New-ScheduledTaskAction -Execute "powershell.exe" `
-  -Argument "-ExecutionPolicy Bypass -File `"$script`""
-$trigger = New-ScheduledTaskTrigger -Daily -At 2am
-Register-ScheduledTask -TaskName "CSWG QA Nightly Tests" `
-  -Action $action -Trigger $trigger -Description "Nightly Playwright tests in Docker"
+pwsh -File scripts/run-nightly.ps1                 # bridge networking
+pwsh -File scripts/run-nightly.ps1 -UseHostNetwork # internal/VPN target
 ```
 
-Docker Desktop must be running (or set to start on login) for the scheduled run
-to succeed.
+Register it to run every night at 2:00 AM with Windows Task Scheduler (run this
+once from the `qa-automation` folder in an elevated PowerShell):
+
+```powershell
+$script = (Resolve-Path scripts/run-nightly.ps1).Path
+schtasks /Create /TN "CSWG QA Nightly" /SC DAILY /ST 02:00 /F `
+  /TR "pwsh -NoProfile -ExecutionPolicy Bypass -File `"$script`""
+```
+
+> Docker Desktop must be running (or set to start on login) for scheduled runs to
+> succeed. Remove the task later with: `schtasks /Delete /TN "CSWG QA Nightly" /F`.
 
 ## Test coverage
 

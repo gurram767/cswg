@@ -9,6 +9,7 @@
     "test:login": "npx playwright test tests/login.spec.ts --headed",
     "test:report": "npx playwright show-report",
     "test:ci": "npx playwright test --reporter=html",
+    "test:docker:build": "docker compose build",
     "test:docker": "docker compose run --rm playwright-tests",
     "test:docker:host": "docker compose run --rm playwright-tests-host"
   },
